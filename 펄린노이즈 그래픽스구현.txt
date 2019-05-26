@@ -1,0 +1,111 @@
+int cols, rows;
+int scl = 20;
+int w = 4000;
+int h = 1500;
+int k = 0;
+int a = 0;
+int b = 2000;
+PImage img, img2;
+
+float flying, flying2 = 0;
+float yPos = 0;
+float[][] terrain;
+color sky = color(180, 255, 255);
+
+void setup() {
+size(800, 600, P3D);
+cols = w / scl;
+rows = h / scl;
+terrain = new float[cols][rows];
+img = loadImage("d:\\photo\\survived.png");
+img2 = loadImage("d:\\photo\\dead.png");
+}
+
+void draw() {
+flying -= 0.003;
+
+//realizing the light
+ambientLight(120, 120, 120);
+directionalLight(120, 120, 120, 0, 500, -300);
+
+//making the noise
+float yoff = flying;
+
+for (int y = 0; y < rows; y++) {
+float xoff = 0;
+for (int x = 0; x < cols; x++) {
+terrain[x][y] = map(noise(xoff, yoff), 0, 1, -200, 150);
+xoff += 0.005;
+}
+yoff += 0.1;
+}
+background(255);
+
+//realizing the sky
+loadPixels();
+for (int i = 0; i < (width * height / 2) - width / 2; i++) {
+pixels[i] = sky;
+}
+updatePixels();
+
+stroke(0);
+
+//rotating the grid
+translate(width/2, height/2);
+rotateX(PI/3);
+translate(-w/2, -h+600);
+
+//drawing the grid
+for (int y = 0; y < rows - 1; y++) {
+beginShape(TRIANGLE_STRIP);
+noStroke();
+for (int x = 0; x < cols; x++) {
+fill(20, 150, 200);
+vertex(x*scl, y*scl, terrain[x][y]);
+vertex(x*scl, (y+1)*scl, terrain[x][y+1]);
+}
+endShape();
+}
+
+//inserting the images
+beginShape();
+translate(b, a, terrain[100][k]);
+rotateX(PI*2/3);
+image(img, -600, -150, width/2, height/2);
+image(img2, 200, -120 + yPos, width/2, height/2);
+yPos -= 0.15;
+endShape();
+
+}
+
+//keypressed
+void keyPressed() {
+
+if (key == CODED) {
+
+if ((keyCode == UP) && (k > 0)) {
+
+k--;
+
+a-=30;
+}
+
+if ((keyCode == DOWN) && (k < 75)) {
+
+k++;
+
+a+=30;
+}
+
+if ((keyCode == LEFT) && (b > 0)) {
+
+b-=30;
+}
+
+if ((keyCode == RIGHT) && (b < 4000)) {
+
+b+=30;
+}
+}
+}
+
